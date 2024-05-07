@@ -21,6 +21,24 @@ sigma_squared <- 1
 # Apply the JSE
 jse_results <- james_stein_estimator(z, sigma_squared)
 print(jse_results)
+
+data <- data.frame(Index = 1:length(z),
+                   Original = z,
+                   JamesStein = jse_results)
+
+ggplot(data) +
+  geom_point(aes(x = Index, y = Original, color = "Original Data"), pch = 19) +
+  geom_point(aes(x = Index, y = JamesStein, color = "James-Stein Estimation"), pch = 8) +
+  scale_color_manual(values = c("Original Data" = "#d62828", 
+                                "James-Stein Estimation" = "#003049")) +
+  labs(x = "Index", y = "Estimates", title = "Effect of James-Stein Shrinkage") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.title = element_blank(),
+    legend.position = 'bottom'
+    ) +
+  ylim(2, 8)
 \end{verbatim}
 
 \subsection{R Code for Simulation of Estimator Effectiveness}
@@ -49,6 +67,27 @@ simulate_estimators <- function(n, mu = 5, sigma = 1, num_sim = 1000) {
     N = rep(n, 2 * num_sim)
   )
 }
+
+# Parameters
+sample_sizes <- c(3, 5, 10, 20)
+num_simulations <- 1000
+
+# Run simulations for multiple sample sizes
+results <- do.call(rbind, lapply(sample_sizes, function(n) {
+  simulate_estimators(n = n, num_sim = num_simulations)
+}))
+results$Estimator <- factor(results$Estimator, levels = c("err_MLE", "err_JSE"))
+
+# Plot
+ggplot(results, aes(x = Estimator, y = log(Error + 1), fill = Estimator)) +
+  geom_boxplot() +
+  facet_wrap(~ N, scales = "free") +
+  labs(title = "Comparison of MLE and James–Stein Estimator Errors",
+       x = "Estimator Type",
+       y = "Log Squared Error") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values = c("err_MLE" = "#d62828", "err_JSE" = "#778da9"))
 \end{verbatim}
 
 \subsection{R Code for Comparing with Ridge Regression}
