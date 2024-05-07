@@ -5,7 +5,7 @@ editor: visual
 author: Fengyuan Shen (Vincent)
 ---
 
-## Implement the James-Stein Estimator
+## Implementation of the James-Stein Estimator
 
 ```{r}
 library(ggplot2)
@@ -54,7 +54,7 @@ ggplot(data) +
   ylim(2, 8)
 ```
 
-## Simulate effectiveness of James-Stein Estimator compared to MLE
+## Simulation of Estimator Effectiveness
 
 ```{r, warning=FALSE}
 # Perform simulations and calculate MLE and JSE
