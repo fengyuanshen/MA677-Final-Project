@@ -77,7 +77,7 @@ simulate_estimators <- function(n, mu = 5, sigma = 1, num_sim = 1000) {
   }
   
   data.frame(
-    Error = c(mle_errors, jse_errors),
+    Error = c(jse_errors, mle_errors),
     Estimator = rep(c("err_MLE", "err_JSE"), each = num_sim),
     N = rep(n, 2 * num_sim)
   )
@@ -91,6 +91,7 @@ num_simulations <- 1000
 results <- do.call(rbind, lapply(sample_sizes, function(n) {
   simulate_estimators(n = n, num_sim = num_simulations)
 }))
+results$Estimator <- factor(results$Estimator, levels = c("err_MLE", "err_JSE"))
 
 # Plot
 ggplot(results, aes(x = Estimator, y = log(Error + 1), fill = Estimator)) +
@@ -101,7 +102,7 @@ ggplot(results, aes(x = Estimator, y = log(Error + 1), fill = Estimator)) +
        y = "Log Squared Error") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_fill_manual(values = c("err_MLE" = "#778da9", "err_JSE" = "#d62828"))
+  scale_fill_manual(values = c("err_MLE" = "#d62828", "err_JSE" = "#778da9"))
 ```
 
 ## Comparing with Ridge Regression
