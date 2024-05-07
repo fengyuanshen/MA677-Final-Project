@@ -27,9 +27,11 @@ data <- data.frame(Index = 1:length(z),
                    JamesStein = jse_results)
 
 ggplot(data) +
-  geom_point(aes(x = Index, y = Original, color = "Original Data"), pch = 19) +
-  geom_point(aes(x = Index, y = JamesStein, color = "James-Stein Estimation"), pch = 8) +
-  scale_color_manual(values = c("Original Data" = "#d62828", 
+  geom_point(aes(x = Index, y = Original,
+                            color = "Original Data"), pch = 19) +
+  geom_point(aes(x = Index, y = JamesStein,
+                            color = "James-Stein Estimation"), pch = 8) +
+  scale_color_manual(values = c("Original Data" = "#d62828",
                                 "James-Stein Estimation" = "#003049")) +
   labs(x = "Index", y = "Estimates", title = "Effect of James-Stein Shrinkage") +
   theme_minimal() +
@@ -50,13 +52,15 @@ simulate_estimators <- function(n, mu = 5, sigma = 1, num_sim = 1000) {
   jse_errors <- numeric(num_sim)
   
   for (i in 1:num_sim) {
+    # Simulate data
     z <- rnorm(n, mean = mu, sd = sigma)
     mle <- mean(z)
     s_squared <- sum((z - mle)^2) / n
     shrinkage_factor <- 1 - ((n-3) * sigma^2 / s_squared)
-    shrinkage_factor <- max(0, shrinkage_factor)
+    shrinkage_factor <- max(0, shrinkage_factor)  # Ensuring non-negative shrinkage
     jse <- mle + shrinkage_factor * (z - mle)
     
+    # Calculate errors
     mle_errors[i] <- sum((mle - mu)^2)
     jse_errors[i] <- sum((jse - mu)^2)
   }
@@ -99,10 +103,10 @@ x <- matrix(rnorm(100*20), 100, 20)  # 100 observations, 20 predictors
 beta <- runif(20, -2, 2)  # True coefficients
 y <- x %*% beta + rnorm(100)  # Response variable
 
-# Ridge regression using glmnet
+# Ridge regression
 fit <- glmnet(x, y, alpha = 0)
 
-# Plot coefficient shrinkage
+# Plot shrinkage
 plot(fit, xvar = "lambda", label = TRUE)
 title(main = "Ridge Regression Shrinkage", line = -1)
 \end{verbatim}
