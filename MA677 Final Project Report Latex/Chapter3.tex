@@ -1,0 +1,235 @@
+\section{Mathematical Foundations}
+
+\subsection{The James-Stein Estimator: Principles and Insights}
+
+The James-Stein estimator represents a significant advancement in statistical estimation, serving as a shrinkage estimator designed to improve the mean squared error of estimates. This powerful estimator is introduced through a compelling application to baseball batting averages.
+
+\subsubsection{What is the James-Stein Estimator?}
+
+Consider a scenario in statistical inference:
+
+\begin{equation}
+    z_i | \mu_i \sim N(\mu_i, 1) \quad \text{for } i = 1, 2, \dots, N
+\end{equation}
+
+Here, $z_i$ represents the observed value, and $\mu_i$ denotes the unknown parameter to be estimated. Traditionally, the maximum likelihood estimator (MLE) for $\mu_i$ is straightforward:
+
+\begin{equation}
+    \hat{\mu}_i^{(\text{MLE})} = z_i
+\end{equation}
+
+However, the James-Stein estimator introduces a more refined approach \cite{james1992estimation,efron2021computer}:
+
+\begin{equation}
+    \hat{\mu}_i^{(\text{JSE})} = \left(1 - \frac{N-2}{\|z\|^2}\right)z_i
+\end{equation}
+
+Unlike the MLE, which uses only the individual observation $z_i$ for estimating $\mu_i$, the James-Stein estimator utilizes all observed values to formulate each estimate. This collective use of data points typically results in estimates that are shrunk towards the overall mean, thereby potentially reducing the total estimation error under squared loss.
+
+\subsubsection{Illustrative Example Using Baseball Data}
+
+Table 1 showcases the batting averages of 18 Major League Baseball players from the 1970 season. The \texttt{MLE} column shows each player's average over the first 90 at bats, which serves as an early-season snapshot of their performance. Conversely, the \texttt{TRUTH} column reveals the players' averages over the remainder of the season, based on an additional 370 at bats on average, providing a more comprehensive assessment of their true skill.
+
+This dataset offers a real-world application of the James-Stein theorem, suggesting that enhancements from this estimator can be significant under certain conditions. The \texttt{MLE} values, treated as binomial proportions, are refined using the James-Stein estimator to potentially reduce prediction error and offer a more accurate forecast of the \texttt{TRUTH} values.
+
+\newpage
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\hline
+Player & MLE & JS & TRUTH \\
+\hline
+1 & .345 & .283 & .298 \\
+2 & .333 & .279 & .346 \\
+3 & .322 & .276 & .222 \\
+4 & .311 & .272 & .276 \\
+5 & .289 & .265 & .263 \\
+6 & .289 & .264 & .273 \\
+7 & .278 & .261 & .303 \\
+8 & .255 & .253 & .270 \\
+9 & .244 & .249 & .230 \\
+10 & .233 & .245 & .264 \\
+11 & .233 & .245 & .264 \\
+12 & .222 & .242 & .210 \\
+13 & .222 & .241 & .256 \\
+14 & .222 & .241 & .269 \\
+15 & .211 & .238 & .316 \\
+16 & .211 & .238 & .226 \\
+17 & .200 & .234 & .285 \\
+18 & .145 & .212 & .200 \\
+\hline
+\end{tabular}
+\caption{Comparison of MLE and James-Stein Estimator (JS) Predictions with True Values}
+\end{table}
+
+The James-Stein theorem states that for $N \geq 3$ \cite{james1992estimation,efron2012large}:
+
+\begin{equation}
+    E(\|\mu^{(\text{JSE})} - \mu\|^2) < E(\|\mu^{(\text{MLE})} - \mu\|^2)
+\end{equation}
+
+This implies that without any additional assumptions or conditions, the James-Stein estimator consistently outperforms the MLE in terms of the expected squared error, making it a superior choice in the presence of squared loss. 
+
+Why is the James-Stein estimator considered a pivotal empirical Bayesian method? The forthcoming sections on the derivation of the James-Stein estimator and the proof of the James-Stein theorem elucidate its mathematical foundation and justify its empirical effectiveness.
+
+\subsubsection{Derivation of the James-Stein Estimator}
+
+The derivation of the James-Stein estimator begins with the assumption of normality in our observations. Consider the model \cite{efron2012large}:
+
+\begin{equation}
+    z_i | \mu_i \sim N(\mu_i, 1)
+\end{equation}
+
+Where $\mu_i$ is the true but unknown parameter, and $z_i$ is the observed value.
+
+This implies the likelihood for \(z_i\) given \(\mu_i\) is known. Let \(\varepsilon_i\), the error term, be normally distributed:
+
+\begin{equation}
+    z_i = \mu_i + \varepsilon_i, \quad \text{where } \varepsilon_i \sim N(0, 1).
+\end{equation}
+
+Assuming a prior distribution \(\mu_i \sim N(0, \sigma^2)\) for the parameters, the marginal distribution of \(z_i\) can be derived as follows:
+
+\begin{equation}
+    z_i \sim N(0, 1+\sigma^2)
+\end{equation}
+
+By applying the Bayesian theorem and leveraging the inherent properties of Gaussian distributions—namely marginal, conditional, and joint distributions—we significantly streamline our inference process. This approach is grounded in the principle that Gaussian characteristics inherently extend through all aspects of these distributions. As a result, we derive the posterior distribution of \(\mu_i\) given \(z_i\) as follows:
+
+\begin{equation}
+    \mu_i | z_i \sim N\left(\left(1-\frac{1}{\sigma^2+1}\right)z_i, \frac{\sigma^2}{1+\sigma^2}\right)
+\end{equation}
+
+The expected value of \(\mu_i\) given \(z_i\) becomes the James-Stein estimator:
+
+\begin{equation}
+    E(\mu_i | z_i) = \left(1-\frac{1}{\sigma^2+1}\right)z_i = \hat{\mu}_i^{(\text{JSE})}
+\end{equation}
+
+To fully implement this estimator, we need an estimate of \(\sigma^2\). Estimating \(\sigma^2\) involves using the observed data:
+
+\begin{equation}
+    z_i\sim N(0,1+\sigma^2)
+\end{equation}
+
+Upon standardizing, we get a $\chi^2$ distribution with \(N\) degrees of freedom for the sum of squared standardized observations:
+
+\begin{equation}
+    Q = \sum_{i = 1}^{N}{\frac{z_i^2}{1+\sigma^2}} \sim \chi^2_N
+\end{equation}
+
+Given that \(Q\) follows a $\chi^2$ distribution, \(1/Q\) follows an inverse $\chi^2$ distribution, which leads to:
+
+\begin{equation}
+    E\left(\frac{1}{Q}\right) = \frac{1}{N-2} \Rightarrow E\left(\frac{1}{\sum_{i=1}^{N}{\frac{z_i^2}{1+\sigma^2}}}\right) = \frac{1}{N-2}
+\end{equation}
+
+Finally, we estimate \(\frac{1}{1+\sigma^2}\) using:
+
+\begin{equation}
+    \frac{N-2}{\sum_{i=1}^{N}{z_i^2}}
+\end{equation}
+
+Substituting this into the estimator formula gives us the James-Stein estimator:
+
+\begin{equation}
+    \hat{\mu}_i^{(JSE)} = \left(1 - \frac{N-2}{\sum_{i=1}^{N}{z_i^2}}\right) z_i
+\end{equation}
+
+\subsubsection{Proof of the James-Stein Theorem}
+
+The James-Stein theorem demonstrates the superiority of the James-Stein estimator over the MLE under certain conditions. This proof details the conditions under which the expected squared error of the James-Stein estimator is less than that of the MLE when estimating multiple parameters.
+
+\paragraph{Starting Point}
+
+We begin with the identity for the squared errors \cite{efron2012large}:
+
+\begin{equation}
+    \sum_{i=1}^{N}{(\hat\mu_i-\mu_i)^2} = \sum_{i=1}^{N}{[(z_i-\hat\mu_i)^2-(z_i-\mu_i)^2+2(\hat\mu_i-\mu_i)(z_i-\mu_i)]}
+\end{equation}
+
+Taking expectations on both sides, and recognizing that \(\hat\mu\) is a function of \(z\), we have:
+
+\begin{equation}
+    E(\|\hat\mu-\mu\|^2) = E(\|z - \hat\mu\|^2) - N + 2\sum_{i=1}^{N}{\text{Cov}(\hat\mu_i,z_i)}
+\end{equation}
+
+where \(\text{Cov}(\hat\mu_i,z_i) = E[(\hat\mu_i-\mu_i)(z_i-\mu_i)]\).
+
+\paragraph{Utilizing Stein's Identity}
+
+Stein's identity provides a pivotal simplification, stating:
+
+\begin{equation}
+    \text{Cov}(\hat\mu_i,z_i) = E\left[\frac{\partial{\hat\mu_i}}{\partial{z_i}}\right]
+\end{equation}
+
+which can be derived from integration by parts. Substituting this into our equation, we obtain:
+
+\begin{equation}
+    E(\|\hat\mu-\mu\|^2) = E(\|z - \hat\mu\|^2) - N + 2\sum_{i=1}^{N}{E\left[\frac{\partial{\hat\mu_i}}{\partial{z_i}}\right]}
+\end{equation}
+
+\paragraph{Substituting Estimators}
+
+Inserting \(\hat\mu^{(MLE)} = z\) and \(\hat\mu^{(JSE)} = \left(1-\frac{N}{\|z\|^2}\right)z\), we compare:
+
+\begin{align}
+    E(\|\mu^{(MLE)} - \mu\|^2) &= N \\
+    E(\|\mu^{(JSE)} - \mu\|^2) &= N - E\left[\frac{(N-2)^2}{\|z\|^2}\right]
+\end{align}
+
+\paragraph{Concluding the Proof}
+
+From the above, it is evident that when \(N \geq 3\),
+
+\begin{equation}
+    E(\|\mu_i^{(JSE)} - \mu_i\|^2) < E(\|\mu_i^{(MLE)} - \mu_i\|^2)
+\end{equation}
+
+thus proving the theorem. This result highlights the effectiveness of the James-Stein Estimator, particularly when estimating multiple parameters, as it consistently yields lower expected squared errors compared to the MLE.
+
+\subsection{Linking Ridge Regression and James-Stein Estimation}
+
+Ridge Regression and the James-Stein Estimator share a fundamental approach to addressing the shortcomings of traditional least squares in the presence of multicollinearity or when the number of predictors exceeds the number of observations. Both methods adjust the estimates by introducing a form of shrinkage, improving the reliability of predictions especially when dealing with high-dimensional data.
+
+\subsubsection{Basic Linear Model and Shrinkage}
+
+In the context of linear regression, we often start with the model:
+
+\begin{equation}
+    y = X\beta + \epsilon
+\end{equation}
+
+where \( y \) is the vector of responses, \( X \) is the matrix of predictors, \( \beta \) is the vector of unknown coefficients, and \( \epsilon \) is the noise vector, typically assumed to be normally distributed, \( \epsilon \sim N(0, \sigma^2I) \).
+
+\subsubsection{Ordinary Least Squares and Its Limitations}
+
+The ordinary least squares (OLS) estimator is given by:
+
+\begin{equation}
+    \hat{\beta}^{OLS} = (X^TX)^{-1}X^Ty
+\end{equation}
+
+However, when \( X^TX \) is nearly singular or not invertible (which happens in cases of multicollinearity or when \( p > n \)), the OLS estimator becomes highly sensitive to random errors in the observed data, resulting in large variances for the coefficient estimates.
+
+\subsubsection{Introduction of Ridge Regression}
+
+Ridge Regression modifies the OLS approach by adding a penalty term to the loss function \cite{hastie2020ridge,james2013introduction,hastie2009elements}:
+
+\begin{equation}
+    \hat{\beta}^{ridge} = \arg\min_\beta \left\{ \|y - X\beta\|^2 + \lambda \|\beta\|^2 \right\}
+\end{equation}
+
+This penalty term \( \lambda \|\beta\|^2 \) discourages the flexibility of the model by penalizing the magnitude of the coefficients, effectively shrinking them towards zero. This is particularly useful in reducing the variance of the estimates.
+
+\subsubsection{James-Stein Estimator and Its Connection to Ridge}
+
+Similarly to how Ridge introduces shrinkage, the James-Stein estimator also applies a shrinkage factor to improve the estimation of means from a multivariate normal distribution. For Ridge Regression, the shrinkage factor is controlled by \( \lambda \), while for the James-Stein estimator, the shrinkage depends on the number of dimensions and the variability of the estimates. Specifically, for estimates \( \hat{\beta} \) under a normal model, the James-Stein-type shrinkage can be expressed as \cite{efron2021computer}:
+
+\begin{equation}
+    \hat{\beta}^{JS} = \left[ 1 - \frac{(p-2)\sigma^2}{\hat{\beta}^T S \hat{\beta}} \right] \hat{\beta}
+\end{equation}
+
+where \( S \) is related to the covariance structure of the predictors (akin to \( X^TX \) in Ridge Regression).
