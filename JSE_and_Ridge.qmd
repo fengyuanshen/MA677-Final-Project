@@ -41,9 +41,9 @@ data <- data.frame(Index = 1:length(z),
                    JamesStein = jse_results)
 
 ggplot(data) +
-  geom_point(aes(x = Index, y = Original, color = "Original"), pch = 19) +
+  geom_point(aes(x = Index, y = Original, color = "Original Data"), pch = 19) +
   geom_point(aes(x = Index, y = JamesStein, color = "James-Stein Estimation"), pch = 8) +
-  scale_color_manual(values = c("Original" = "#d62828", "James-Stein Estimation" = "#003049")) +
+  scale_color_manual(values = c("Original Data" = "#d62828", "James-Stein Estimation" = "#003049")) +
   labs(x = "Index", y = "Estimates", title = "Effect of James-Stein Shrinkage") +
   theme_minimal() +
   theme(
